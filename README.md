@@ -28,59 +28,16 @@ A systems engineering experiment conducted with AirLLM for empirical validation 
 Direct telemetry comparing monolithic execution against dynamic layer-paging on the same physical T4 GPU node:
 
 | Metric | Monolithic PyTorch Load (`transformers`) | Dynamic Layer Paging (`airllm`) | Systems Impact / Delta |
-| --- | --- | --- | --- |
-| **Allocation Device** | CUDA Device 0 (`cuda:0`)
-
- | PyTorch `meta` Device
-
- | Bypasses contiguous physical VRAM reservation
-
- |
-| **Initial Memory Footprint** | ~28 GB attempted
-
- | **0.00 MB**
-
- | Zero physical memory mapped at graph instantiation
-
- |
-| **Peak Resident VRAM** | **14.43 GiB** (`CRASH`)
-
- | **1,501.66 MB** (~1.46 GiB)
-
- | **-89.6% peak physical VRAM consumption**
-
- |
-| **VRAM Headroom Remaining** | 0.00 MB (Hard abort)
-
- | **~13.06 GiB** untouched
-
- | Executes inside <11% of the T4 memory budget
-
- |
-| **Single Forward Pass Time** | $\infty$ (Failed initialization)
-
- | **124.93 seconds**
-
- | Paging latency driven by sequential storage I/O wait
-
- |
-| **Inference Throughput** | 0.00 tokens/sec
-
- | **0.01 tokens/sec**
-
- | ~1,000× latency penalty vs. resident HBM
-
- |
-| **Execution Output** | `torch.cuda.OutOfMemoryError`
-
- | `"cache"` (Deterministic finish)
-
- | Bit-exact mathematical parity maintained
-
- |
+| :--- | :--- | :--- | :--- |
+| **Allocation Device** | CUDA Device 0 (`cuda:0`) | PyTorch `meta` Device | Bypasses contiguous physical VRAM reservation |
+| **Initial Memory Footprint** | ~28 GB attempted | **0.00 MB** | Zero physical memory mapped at graph instantiation |
+| **Peak Resident VRAM** | **14.43 GiB** (`CRASH`) | **1,501.66 MB** (~1.46 GiB) | **-89.6% peak physical VRAM consumption** |
+| **VRAM Headroom Remaining** | 0.00 MB (Hard abort) | **~13.06 GiB** untouched | Executes inside <11% of the T4 memory budget |
+| **Single Forward Pass Time** | $\infty$ (Failed initialization) | **124.93 seconds** | Paging latency driven by sequential storage I/O wait |
+| **Inference Throughput** | 0.00 tokens/sec | **0.01 tokens/sec** | ~1,000× latency penalty vs. resident HBM |
+| **Execution Output** | `torch.cuda.OutOfMemoryError` | `"cache"` (Deterministic finish) | Bit-exact mathematical parity maintained |
 
 ---
-
 ## 3. Reproduction Steps (Colab Notebook)
 
 ### Step 1: Reproduce the Contiguous Allocation Crash
